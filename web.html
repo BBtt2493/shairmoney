@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>หารเงินหลายรายการ</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: auto; padding: 20px; }
+    input, button { padding: 6px; margin: 5px 0; }
+    .entry { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 8px; position: relative; }
+    .result, .person-list { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+    .remove-btn { position: absolute; top: 10px; right: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>หารเงินหลายรายการ</h2>
+
+  <div id="entriesContainer"></div>
+
+  <button onclick="addEntry()">➕ เพิ่มรายการ</button>
+  <button onclick="calculateAll()">🧮 คำนวณ</button>
+
+  <script>
+    function addEntry() {
+      const container = document.getElementById("entriesContainer");
+
+      const wrapper = document.createElement("div");
+
+      const entryDiv = document.createElement("div");
+      entryDiv.className = "entry";
+
+      const resultDiv = document.createElement("div");
+      resultDiv.className = "result";
+
+      entryDiv.innerHTML = `
+        <button class="remove-btn">❌</button>
+        <label>ชื่อรายการ: <input type="text" placeholder="เช่น ตั๋วหนัง" class="item-name" /></label><br/>
+        <label>จำนวนเงินรวม: <input type="number" placeholder="เช่น 600" class="item-amount" /></label><br/>
+        <label>จำนวนคน: <input type="number" placeholder="เช่น 5" class="item-people" /></label>
+      `;
+
+      // ลบทั้ง input และผลลัพธ์เฉพาะรายการนี้
+      entryDiv.querySelector(".remove-btn").addEventListener("click", () => {
+        wrapper.remove();
+      });
+
+      wrapper.appendChild(entryDiv);
+      wrapper.appendChild(resultDiv);
+      container.appendChild(wrapper);
+    }
+
+    function calculateAll() {
+      const entries = document.querySelectorAll("#entriesContainer > div");
+
+      if (entries.length === 0) {
+        alert("กรุณาเพิ่มรายการอย่างน้อย 1 รายการ");
+        return;
+      }
+
+      entries.forEach((wrapper, idx) => {
+        const entry = wrapper.querySelector(".entry");
+        const resultDiv = wrapper.querySelector(".result");
+        resultDiv.innerHTML = ""; // ล้างผลลัพธ์เก่าก่อน
+
+        const name = entry.querySelector(".item-name").value || `รายการที่ ${idx + 1}`;
+        const amount = parseFloat(entry.querySelector(".item-amount").value);
+        const people = parseInt(entry.querySelector(".item-people").value);
+
+        if (!amount || !people || amount <= 0 || people <= 0) {
+          return;
+        }
+
+        const perPerson = (amount / people).toFixed(2);
+
+        let html = `<strong>${name}</strong><br/>`;
+        html += `รวม ${amount} บาท / ${people} คน = คนละ ${perPerson} บาท<br/><br/>`;
+        html += `<div class="person-list">`;
+
+        for (let i = 1; i <= people; i++) {
+          html += `
+            <label>
+              <input type="checkbox" /> คนที่ ${i} จ่ายแล้ว (${perPerson} บาท)
+            </label><br/>
+          `;
+        }
+
+        html += `</div>`;
+        resultDiv.innerHTML = html;
+      });
+    }
+  </script>
+
+</body>
+</html>
